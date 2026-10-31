@@ -9,23 +9,21 @@ export function cafeStatus(c: Pick<Cafe, 'isOpen' | 'acceptingOrders'>) {
 }
 
 export function CafeCard({ cafe, locationSlug }: { cafe: Cafe; locationSlug: string }) {
-  const status = cafeStatus(cafe);
-  const line = [...cafe.cuisines.split('·').map((s) => s.trim()).slice(0, 2), shortPlace(cafe.place)].join(' · ');
+  const open = cafe.isOpen && cafe.acceptingOrders;
+  const status = open ? `Open · ${cafe.etaMin}–${cafe.etaMax} min` : cafe.isOpen ? 'Not taking orders' : 'Closed now';
   return (
-    <Link href={`/${locationSlug}/${cafe.slug}`} className="card" style={{ overflow: 'hidden', display: 'block' }}>
-      <div style={{ height: 150, background: cafe.coverColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 64 }}>
-        {cafe.imageUrl ? <img src={cafe.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : cafe.emoji}
+    <Link href={`/${locationSlug}/${cafe.slug}`} className={`cafe-card${open ? '' : ' closed'}`}>
+      <div className="cover" style={{ background: cafe.coverColor }}>
+        {cafe.imageUrl ? <img src={cafe.imageUrl} alt="" /> : <span aria-hidden>{cafe.emoji}</span>}
+        <span className="cover-tag"><span className={open ? 'dot' : 'dot off'} />{status}</span>
+        <span className="cover-place">{shortPlace(cafe.place)}</span>
       </div>
-      <div style={{ padding: 20 }}>
-        <div className="row" style={{ gap: 12 }}>
-          <div className="h2">{cafe.name}</div>
-          <span className={`badge ${status.cls}`}>{status.label}</span>
+      <div style={{ padding: 16 }}>
+        <div className="row" style={{ gap: 10 }}>
+          <span style={{ fontSize: 18, fontWeight: 800 }}>{cafe.name}</span>
+          <span className="rating">★ {cafe.rating.toFixed(1)}</span>
         </div>
-        <div style={{ color: 'var(--sub)', fontSize: 14, marginTop: 6 }}>{line}</div>
-        <div style={{ display: 'flex', gap: 16, marginTop: 14, fontSize: 14, color: 'var(--sub)' }}>
-          <b style={{ color: 'var(--text)' }}>★ {cafe.rating.toFixed(1)}</b>
-          <span>{cafe.etaMin}–{cafe.etaMax} min</span>
-        </div>
+        <div style={{ color: 'var(--sub)', fontSize: 14, fontWeight: 600, marginTop: 4 }}>{cafe.cuisines}</div>
       </div>
     </Link>
   );

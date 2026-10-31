@@ -35,10 +35,9 @@ export function TopBar({ location, search, cart: showCart, title }: Props) {
           <nav className="top-right">
             <Link href="/orders" className="hide-sm">Orders</Link>
             {showCart && (
-              <Link href={cart ? `/${cart.cafe.locationSlug}/${cart.cafe.slug}` : '/checkout'} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <Icon name="bag" />
-                <span className="hide-sm">Cart</span>
-                {count > 0 && <span className="count">{count}</span>}
+              <Link href={cart ? `/${cart.cafe.locationSlug}/${cart.cafe.slug}` : '/checkout'} className="cart-btn" aria-label={`Cart, ${count} items`}>
+                <Icon name="bag" style={{ fontSize: 18 }} />
+                <span><span className="lbl">Cart</span>{count > 0 ? <span className="lbl"> · </span> : null}{count > 0 ? count : null}</span>
               </Link>
             )}
             <AccountMenu />

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { CafeCard } from '@/components/CafeCard';
-import { HomeHeader } from '@/components/HomeHeader';
+import { HomeHero } from '@/components/HomeHero';
 import { LiveRefresh } from '@/components/LiveRefresh';
 import { PopularCard } from '@/components/PopularCard';
 import { TopBar } from '@/components/TopBar';
@@ -51,26 +51,29 @@ export default async function LocationHome({ params, searchParams }: Props) {
       <LiveRefresh locationId={location.id} />
       <TopBar location={location} search cart />
       <main className="page">
-        <HomeHeader slug={slug} name={location.name} delivering={delivering} />
-        <div className="pills" style={{ marginTop: 28 }}>
-          {TAGS.map((t) => (
-            <Link key={t.label} href={tagHref(t.tag)} className={`pill ${tag === t.tag ? 'on' : ''}`} scroll={false}>
-              {t.label}
-            </Link>
-          ))}
+        <HomeHero slug={slug} name={location.name} delivering={delivering} />
+        <div id="cafes" className="section-head" style={{ marginTop: 40, scrollMarginTop: 96 }}>
+          <h2>{search ? `Results for “${search}”` : 'Cafes in your building'}</h2>
+          <div className="pills">
+            {TAGS.map((t) => (
+              <Link key={t.label} href={tagHref(t.tag)} className={`pill ${tag === t.tag ? 'on' : ''}`} scroll={false}>
+                {t.label}
+              </Link>
+            ))}
+          </div>
         </div>
         {cafes.length ? (
-          <div className="cafes" style={{ marginTop: 28 }}>
+          <div className="cafes" style={{ marginTop: 18 }}>
             {cafes.map((c) => <CafeCard key={c.id} cafe={c} locationSlug={slug} />)}
           </div>
         ) : (
-          <div className="card empty" style={{ marginTop: 28 }}>
+          <div className="card empty" style={{ marginTop: 18 }}>
             {search ? `No cafes or dishes match “${search}”.` : 'No cafes here yet.'}
           </div>
         )}
         {!search && popular.length > 0 && (
           <>
-            <h2 className="h2" style={{ marginTop: 40 }}>Popular in your building</h2>
+            <div className="section-head" style={{ marginTop: 40 }}><h2>Popular in your building</h2></div>
             <div className="popular" style={{ marginTop: 18 }}>
               {pickPopular(popular).map((item) => {
                 const cafe = cafeById.get(item.cafe.id);
