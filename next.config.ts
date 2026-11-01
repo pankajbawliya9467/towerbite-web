@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   agentRules: false,
   poweredByHeader: false,
+  // Cafe pages are prefetched from the cafe cards so they open instantly; keep that copy short-lived so
+  // open/closed and stock are fresh (live updates also refresh the page).
+  experimental: { staleTimes: { dynamic: 0, static: 30 } },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

@@ -32,6 +32,8 @@ export function AccountMenu() {
           <div className="divider" style={{ margin: '4px 0' }} />
           <button className="menu-item" onClick={() => { setOpen(false); setEditing(true); }}>Edit profile &amp; desk</button>
           <Link className="menu-item" href="/orders" onClick={() => setOpen(false)}>Your orders</Link>
+          <Link className="menu-item" href="/lunch" onClick={() => setOpen(false)}>Lunch</Link>
+          <Link className="menu-item" href="/team/new" onClick={() => setOpen(false)}>Start a team order</Link>
           <button
             className="menu-item"
             style={{ color: 'var(--red)' }}

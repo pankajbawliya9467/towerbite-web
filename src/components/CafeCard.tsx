@@ -12,7 +12,7 @@ export function CafeCard({ cafe, locationSlug }: { cafe: Cafe; locationSlug: str
   const open = cafe.isOpen && cafe.acceptingOrders;
   const status = open ? `Open · ${cafe.etaMin}–${cafe.etaMax} min` : cafe.isOpen ? 'Not taking orders' : 'Closed now';
   return (
-    <Link href={`/${locationSlug}/${cafe.slug}`} className={`cafe-card${open ? '' : ' closed'}`}>
+    <Link href={`/${locationSlug}/${cafe.slug}`} prefetch className={`cafe-card${open ? '' : ' closed'}`}>
       <div className="cover" style={{ background: cafe.coverColor }}>
         {cafe.imageUrl ? <img src={cafe.imageUrl} alt="" /> : <span aria-hidden>{cafe.emoji}</span>}
         <span className="cover-tag"><span className={open ? 'dot' : 'dot off'} />{status}</span>

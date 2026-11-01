@@ -27,7 +27,9 @@ export function LoginCard() {
   const [wait, setWait] = useState(0);
   const phone = `+91${digits}`;
 
-  const done = () => router.replace(next?.startsWith('/') ? next : `/${getSavedLocation() ?? ''}`);
+  // Only same-site paths: "/orders" yes, "//evil.com" or "/\\evil.com" no (open redirect).
+  const safeNext = next && /^\/(?![\/\\])/.test(next) ? next : null;
+  const done = () => router.replace(safeNext ?? `/${getSavedLocation() ?? ''}`);
 
   // Already logged in: nothing to do here.
   useEffect(() => {

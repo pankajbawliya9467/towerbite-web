@@ -33,6 +33,7 @@ export function TopBar({ location, search, cart: showCart, title }: Props) {
           {location && <LocationMenu slug={location.slug} name={location.name} />}
           {search && location && <SearchBox slug={location.slug} />}
           <nav className="top-right">
+            <Link href="/lunch" className="hide-sm">Lunch</Link>
             <Link href="/orders" className="hide-sm">Orders</Link>
             {showCart && (
               <Link href={cart ? `/${cart.cafe.locationSlug}/${cart.cafe.slug}` : '/checkout'} className="cart-btn" aria-label={`Cart, ${count} items`}>

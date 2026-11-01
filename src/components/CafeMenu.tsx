@@ -54,6 +54,11 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
             <span className="chip"><Icon name="clock" /> {cafe.etaMin}–{cafe.etaMax} min</span>
             <span className="chip">Free delivery to desk</span>
             <span className="chip">Cash / UPI</span>
+            {canOrder && (
+              <Link href={`/team/new?cafe=${cafe.id}`} className="chip" style={{ background: '#EEF2FF', color: '#3730A3' }}>
+                <Icon name="team" /> Order with your team
+              </Link>
+            )}
           </div>
         </div>
       </section>

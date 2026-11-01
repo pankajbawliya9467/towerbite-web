@@ -49,57 +49,43 @@ export function HomeHero({ slug, name, delivering }: { slug: string; name: strin
   }
 
   return (
-    <section className="hero-row">
-      <div className="hero">
-        <span className="hero-tag"><span className="dot" />{delivering} {delivering === 1 ? 'cafe' : 'cafes'} delivering now</span>
-        <h1 className="hello" style={{ fontSize: 'clamp(30px, 4vw, 46px)', lineHeight: 1.1 }}>
-          {hello ? `${hello}${first ? `, ${first}` : ''}.` : '\u00a0'}
-          <em>What's coming to your desk?</em>
-        </h1>
-        <p>Order from the cafes in {name}. Delivered to your desk in about 15 minutes. Pay cash or UPI when it arrives.</p>
-        <div className="hero-actions">
-          <a href="#cafes" className="primary">Browse cafes <Icon name="arrow" /></a>
-          <Link href="/orders" className="ghost">Track my order</Link>
+    <>
+      <section className="hero-row">
+        <div className="hero">
+          <div className="hero-text">
+            <span className="hero-tag"><span className="dot" />{delivering} {delivering === 1 ? 'cafe' : 'cafes'} delivering now</span>
+            <h1 className="hero-title">
+              {hello ? `${hello}${first ? `, ${first}` : ''}. ` : ''}
+              <em>What&apos;s coming to your desk?</em>
+            </h1>
+            <p className="hide-sm">Order from cafes in {name}. At your desk in about 15 min.</p>
+            <div className="hero-chips show-sm">
+              <span>Free delivery</span><span>~15 min</span><span>Cash / UPI</span>
+            </div>
+          </div>
+          <div className="hero-actions hide-sm">
+            <a href="#cafes" className="primary">Browse cafes <Icon name="arrow" /></a>
+            <Link href="/orders" className="ghost">Track order</Link>
+          </div>
         </div>
-      </div>
-      <div className="hero-side">
-        {again.length ? (
-          <>
-            <div className="cap">Order again</div>
-            {again.map((o) => (
-              <div key={o.id} className="again">
-                <span className="food" style={{ width: 52, height: 52, background: o.cafe.coverColor, fontSize: 26, borderRadius: 14 }}>{o.cafe.emoji}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {o.items.map((i) => (i.qty > 1 ? `${i.name} ×${i.qty}` : i.name)).join(', ')}
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--sub)', fontWeight: 600 }}>{o.cafe.name} · {rupees(o.total)}</div>
-                </div>
-                <button className="add" style={{ textTransform: 'none' }} onClick={() => reorder(o)}>Reorder</button>
-              </div>
-            ))}
-            {error && <p className="err" style={{ marginTop: 0 }}>{error}</p>}
-          </>
-        ) : (
-          <>
-            <div className="cap">How it works</div>
-            {[
-              ['1', 'Pick a cafe in your building'],
-              ['2', 'Order, and tell us your desk'],
-              ['3', 'Pay cash or UPI when it arrives'],
-            ].map(([n, t]) => (
-              <div key={n} className="again">
-                <span style={{ width: 36, height: 36, borderRadius: 12, background: 'var(--accentSoft)', color: '#9a3412', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{n}</span>
-                <span style={{ fontSize: 15, fontWeight: 700 }}>{t}</span>
-              </div>
-            ))}
-          </>
-        )}
-        <div className="stat-row">
-          <span className="stat" style={{ background: 'var(--greenSoft)', color: 'var(--greenText)' }}><b>FREE</b><span>delivery to desk</span></span>
-          <span className="stat" style={{ background: 'var(--accentSoft)', color: '#9a3412' }}><b>~15 min</b><span>average delivery</span></span>
+        <div className="hero-stats hide-sm">
+          <span className="stat" style={{ background: 'var(--greenSoft)', color: 'var(--greenText)' }}><b>Free</b><span>delivery to desk</span></span>
+          <span className="stat" style={{ background: 'var(--accentSoft)', color: '#9a3412' }}><b>~15 min</b><span>average time</span></span>
+          <span className="stat" style={{ background: 'var(--surface)', boxShadow: 'inset 0 0 0 1px var(--line)' }}><b>Cash/UPI</b><span style={{ color: 'var(--sub)' }}>pay on arrival</span></span>
         </div>
-      </div>
-    </section>
+      </section>
+      {again.length > 0 && (
+        <div className="again-row">
+          <Icon name="clock" style={{ color: 'var(--accentDark)', fontSize: 18 }} />
+          <span className="again-text">
+            <b>Order again: </b>
+            {again[0].items.map((i) => (i.qty > 1 ? `${i.name} ×${i.qty}` : i.name)).join(', ')}
+            <span className="hide-sm" style={{ color: 'var(--sub)' }}> · {again[0].cafe.name} · {rupees(again[0].total)}</span>
+          </span>
+          <button className="again-btn" onClick={() => reorder(again[0])}>Reorder</button>
+        </div>
+      )}
+      {error && <p className="err">{error}</p>}
+    </>
   );
 }

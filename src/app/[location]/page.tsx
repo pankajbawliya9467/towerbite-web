@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { CafeCard } from '@/components/CafeCard';
+import { HomeExtras } from '@/components/HomeExtras';
 import { HomeHero } from '@/components/HomeHero';
 import { LiveRefresh } from '@/components/LiveRefresh';
 import { PopularCard } from '@/components/PopularCard';
 import { TopBar } from '@/components/TopBar';
 import { load } from '@/lib/server';
-import type { Cafe, LocationDetail, PopularItem } from '@/lib/types';
+import type { Cafe, LocationDetail, Lunch, PopularItem } from '@/lib/types';
 
 const TAGS = [
   { label: 'All', tag: '' },
@@ -32,11 +33,13 @@ export default async function LocationHome({ params, searchParams }: Props) {
   const { tag = '', search = '' } = await searchParams;
   const qs = new URLSearchParams({ ...(tag && { tag }), ...(search && { search }) }).toString();
 
-  const [location, all, filtered, popular] = await Promise.all([
+  const [location, all, filtered, popular, lunches] = await Promise.all([
     load<LocationDetail>(`/v1/locations/${slug}`),
     load<Cafe[]>(`/v1/locations/${slug}/cafes`),
     qs ? load<Cafe[]>(`/v1/locations/${slug}/cafes?${qs}`) : null,
     load<PopularItem[]>(`/v1/locations/${slug}/popular`),
+    // Lunch is extra: the page still works if it can't load.
+    load<Lunch[]>(`/v1/locations/${slug}/lunch`).catch(() => [] as Lunch[]),
   ]);
   const cafes = filtered ?? all;
   const cafeById = new Map(all.map((c) => [c.id, c]));
@@ -52,7 +55,8 @@ export default async function LocationHome({ params, searchParams }: Props) {
       <TopBar location={location} search cart />
       <main className="page">
         <HomeHero slug={slug} name={location.name} delivering={delivering} />
-        <div id="cafes" className="section-head" style={{ marginTop: 40, scrollMarginTop: 96 }}>
+        {!search && <HomeExtras lunches={lunches} />}
+        <div id="cafes" className="section-head" style={{ marginTop: 28, scrollMarginTop: 'calc(var(--top) + 16px)' }}>
           <h2>{search ? `Results for “${search}”` : 'Cafes in your building'}</h2>
           <div className="pills">
             {TAGS.map((t) => (
@@ -63,7 +67,7 @@ export default async function LocationHome({ params, searchParams }: Props) {
           </div>
         </div>
         {cafes.length ? (
-          <div className="cafes" style={{ marginTop: 18 }}>
+          <div className="cafes" style={{ marginTop: 14 }}>
             {cafes.map((c) => <CafeCard key={c.id} cafe={c} locationSlug={slug} />)}
           </div>
         ) : (
@@ -73,8 +77,8 @@ export default async function LocationHome({ params, searchParams }: Props) {
         )}
         {!search && popular.length > 0 && (
           <>
-            <div className="section-head" style={{ marginTop: 40 }}><h2>Popular in your building</h2></div>
-            <div className="popular" style={{ marginTop: 18 }}>
+            <div className="section-head" style={{ marginTop: 32 }}><h2>Popular in your building</h2></div>
+            <div className="popular" style={{ marginTop: 14 }}>
               {pickPopular(popular).map((item) => {
                 const cafe = cafeById.get(item.cafe.id);
                 return (

@@ -74,3 +74,27 @@ export type Order = {
   location: { id: string; slug: string; name: string };
   items: { id: string; menuItemId: string; name: string; emoji: string; price: number; qty: number }[];
 };
+
+export type LunchCafe = { id: string; name: string; place: string; coverColor: string; emoji: string };
+export type Lunch = {
+  id: string; cafeId: string; day: string; name: string; items: string; price: number; isVeg: boolean;
+  plates: number; booked: number; left: number; closesAt: string; cancelUntil: string; slots: string[];
+  bookable: boolean; cafe: LunchCafe;
+};
+export type LunchBooking = {
+  id: string; bookingNo: number; lunchId: string; day: string; slot: string; qty: number; price: number; total: number;
+  status: 'booked' | 'out' | 'delivered' | 'cancelled'; address: Address; note: string | null; createdAt: string;
+  canCancel: boolean; cancelUntil: string; lunch: { name: string; items: string; isVeg: boolean }; cafe: LunchCafe;
+};
+export type TeamItem = { menuItemId: string; name: string; emoji: string; price: number; qty: number; isAvailable: boolean };
+export type TeamPerson = {
+  userId: string; name: string; note: string | null; isHost: boolean; isMe: boolean; items: TeamItem[];
+  amount: number; owes: number; paid: boolean; claimed: boolean;
+};
+export type Team = {
+  id: string; code: string; name: string; deliverTo: string; deliverAt: string | null; closesAt: string;
+  payMode: 'split' | 'host'; upiId: string | null; status: 'open' | 'closed' | 'placed' | 'cancelled';
+  isHost: boolean; hostName: string; cafe: LunchCafe; people: TeamPerson[]; peopleWithItems: number;
+  itemCount: number; total: number; toCollect: number; collected: number; me: TeamPerson | null;
+  order: { id: string; orderNo: number; status: OrderStatus; total: number } | null; createdAt: string;
+};
