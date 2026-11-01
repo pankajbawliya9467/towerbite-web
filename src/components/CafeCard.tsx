@@ -17,8 +17,9 @@ export function CafeCard({ cafe, locationSlug }: { cafe: Cafe; locationSlug: str
         {cafe.imageUrl ? <img src={cafe.imageUrl} alt="" /> : <span aria-hidden>{cafe.emoji}</span>}
         <span className="cover-tag"><span className={open ? 'dot' : 'dot off'} />{status}</span>
         <span className="cover-place">{shortPlace(cafe.place)}</span>
+        {cafe.logoUrl && <img className="cafe-logo" src={cafe.logoUrl} alt="" />}
       </div>
-      <div style={{ padding: 16 }}>
+      <div style={{ padding: 16, paddingTop: cafe.logoUrl ? 22 : 16 }}>
         <div className="row" style={{ gap: 10 }}>
           <span style={{ fontSize: 18, fontWeight: 800 }}>{cafe.name}</span>
           <span className="rating">★ {cafe.rating.toFixed(1)}</span>

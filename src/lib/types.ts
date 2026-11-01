@@ -10,7 +10,10 @@ export type Cafe = {
   place: string;
   emoji: string;
   coverColor: string;
+  /** Wide cover photo. */
   imageUrl: string | null;
+  /** Square logo. */
+  logoUrl?: string | null;
   phone: string;
   rating: number;
   ratingCount: number;

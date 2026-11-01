@@ -45,7 +45,10 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
               {cafe.isOpen ? 'Not taking orders right now' : 'Closed now'}
             </span>
           )}
-          <h1>{cafe.name}</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            {cafe.logoUrl && <img src={cafe.logoUrl} alt="" style={{ width: 64, height: 64, borderRadius: 16, objectFit: 'cover', border: '1px solid var(--line)', flex: 'none' }} />}
+            <h1>{cafe.name}</h1>
+          </div>
           <div style={{ fontSize: 16, color: 'var(--sub)', fontWeight: 600 }}>{[cafe.cuisines, cafe.place].filter(Boolean).join(' · ')}</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 6 }}>
             <span className="rating" style={{ height: 36, padding: '0 12px', borderRadius: 11, fontSize: 14 }}>
