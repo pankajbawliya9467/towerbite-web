@@ -215,6 +215,11 @@ select.field {
 .cats button.on { background: var(--accentSoft); color: #9a3412; font-weight: 800; }
 .cats small { font-size: 13px; font-weight: 700; color: var(--sub); }
 .cats button.on small { color: #9a3412; }
+.cats button.sub { height: 36px; padding-left: 26px; font-size: 14px; color: var(--sub); }
+.menu-sec { scroll-margin-top: calc(var(--top) + 16px); }
+.menu-sec + .menu-sec { margin-top: 28px; }
+.menu-sub { font-size: 18px; font-weight: 800; margin: 0 0 12px; display: flex; align-items: baseline; gap: 8px; }
+.menu-sub small { font-size: 13px; font-weight: 700; color: var(--faint, #8F8B84); }
 .menu-col { flex: 999 1 460px; min-width: 0; }
 .dish { background: var(--surface); border-radius: 20px; padding: 14px; display: flex; gap: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
 .best { font-size: 10px; font-weight: 800; color: var(--amber); background: var(--amberSoft); padding: 2px 6px; border-radius: 5px; letter-spacing: .3px; }
@@ -346,3 +351,15 @@ main.page, main[class*="page"], main[class*="board"] { animation: tb-in .2s ease
 .cover img.cafe-logo { inset: auto; position: absolute; left: 12px; bottom: -20px; width: 48px; height: 48px; border-radius: 12px; object-fit: cover; background: #fff; box-shadow: 0 0 0 3px #fff, 0 2px 6px rgba(0,0,0,.12); z-index: 1; }
 .cafe-card .cover { overflow: visible; }
 .cafe-card .cover img:not(.cafe-logo) { border-radius: 0; }
+
+/* Combos */
+.combo-tag { font-size: 10px; font-weight: 800; color: #fff; background: var(--accent); border-radius: 5px; padding: 1px 5px; margin-right: 6px; vertical-align: 2px; }
+.dish.combo { flex-direction: column; gap: 6px; }
+.combo-art { position: relative; height: 110px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden; }
+.combo-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.combo-save { position: absolute; left: 10px; top: 10px; background: var(--green); color: #fff; font-size: 11px; font-weight: 800; border-radius: 7px; padding: 3px 7px; }
+.combo-when { position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,.92); color: #B45309; font-size: 11px; font-weight: 800; border-radius: 7px; padding: 3px 7px; }
+/* Rating card on the order page */
+.rate-stars { display: flex; gap: 6px; }
+.rate-stars button { font-size: 32px; line-height: 1; color: #D6D3CD; padding: 2px; }
+.rate-stars button.on { color: #F59E0B; }

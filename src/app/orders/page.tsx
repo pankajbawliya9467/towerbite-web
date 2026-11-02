@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { TopBar } from '@/components/TopBar';
 import { api } from '@/lib/api';
-import { useCart } from '@/lib/cart';
+import { reorderItems, useCart } from '@/lib/cart';
 import { dayLabel, itemsSummary, rupees } from '@/lib/format';
 import { STATUS } from '@/lib/orderStatus';
 import type { CafeWithMenu, Order } from '@/lib/types';
@@ -40,10 +40,7 @@ export default function OrdersPage() {
     setError('');
     try {
       const cafe = await api<CafeWithMenu>(`/v1/cafes/${order.cafe.id}`, { auth: false });
-      const items = order.items.flatMap((oi) => {
-        const m = cafe.items.find((i) => i.id === oi.menuItemId && i.isAvailable);
-        return m ? [{ menuItemId: m.id, name: m.name, price: m.price, qty: oi.qty, isVeg: m.isVeg }] : [];
-      });
+      const items = reorderItems(order, cafe);
       if (!items.length) throw new Error('These items are not available right now.');
       const ref = { id: cafe.id, slug: cafe.slug, name: cafe.name, locationSlug: order.location.slug };
       fill(ref, items, () => router.push(`/${ref.locationSlug}/${ref.slug}`));

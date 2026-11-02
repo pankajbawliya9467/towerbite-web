@@ -38,9 +38,18 @@ export type MenuItem = {
   isAvailable: boolean;
   isPopular: boolean;
   sort: number;
+  /** % thumbs up after delivery (3+ votes) */
+  likePct?: number;
+  likeCount?: number;
 };
 
-export type CafeWithMenu = Cafe & { categories: { id: string; name: string; sort: number }[]; items: MenuItem[] };
+export type Combo = {
+  id: string; name: string; description: string; price: number; mrp: number; emoji: string; imageUrl: string | null;
+  startTime: string | null; endTime: string | null; days: number[]; isVeg: boolean; availableNow: boolean;
+  items: { menuItemId: string; name: string; emoji: string; price: number; qty: number; isAvailable: boolean }[];
+};
+
+export type CafeWithMenu = Cafe & { categories: { id: string; name: string; sort: number; parentId?: string | null }[]; items: MenuItem[]; combos?: Combo[] };
 export type PopularItem = MenuItem & { cafe: { id: string; slug: string; name: string } };
 
 export type Address = { tower: string; floor: string; company: string; desk: string };
@@ -75,7 +84,9 @@ export type Order = {
   rejectedAt: string | null;
   cafe: { id: string; slug: string; name: string; emoji: string; coverColor: string; place: string; phone: string; etaMin: number; etaMax: number };
   location: { id: string; slug: string; name: string };
-  items: { id: string; menuItemId: string; name: string; emoji: string; price: number; qty: number }[];
+  items: { id: string; menuItemId: string | null; name: string; emoji: string; price: number; qty: number; comboId?: string | null; detail?: string | null }[];
+  savings?: number;
+  rating?: { stars: number; tags: string[] } | null;
 };
 
 export type LunchCafe = { id: string; name: string; place: string; coverColor: string; emoji: string };

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
-import { useCart } from '@/lib/cart';
+import { reorderItems, useCart } from '@/lib/cart';
 import { greeting, rupees } from '@/lib/format';
 import { saveLocation } from '@/lib/savedLocation';
 import { useSession } from '@/lib/session';
@@ -37,10 +37,7 @@ export function HomeHero({ slug, name, delivering }: { slug: string; name: strin
     setError('');
     try {
       const cafe = await api<CafeWithMenu>(`/v1/cafes/${order.cafe.id}`, { auth: false });
-      const items = order.items.flatMap((oi) => {
-        const m = cafe.items.find((i) => i.id === oi.menuItemId && i.isAvailable);
-        return m ? [{ menuItemId: m.id, name: m.name, price: m.price, qty: oi.qty, isVeg: m.isVeg }] : [];
-      });
+      const items = reorderItems(order, cafe);
       if (!items.length) throw new Error('These items are not available right now.');
       fill({ id: cafe.id, slug: cafe.slug, name: cafe.name, locationSlug: order.location.slug }, items, () => router.push('/checkout'));
     } catch (e) {

@@ -8,7 +8,7 @@ import { Veg } from '@/components/Food';
 import { Icon } from '@/components/Icon';
 import { TopBar } from '@/components/TopBar';
 import { api } from '@/lib/api';
-import { useCart } from '@/lib/cart';
+import { COMBO_PREFIX, isComboId, useCart } from '@/lib/cart';
 import { formatPhone, rupees, shortPlace } from '@/lib/format';
 import { useSession } from '@/lib/session';
 import type { Address, CafeWithMenu, LocationDetail, Order } from '@/lib/types';
@@ -55,7 +55,8 @@ export default function CheckoutPage() {
         method: 'POST',
         body: {
           cafeId: cart.cafe.id,
-          items: cart.items.map((i) => ({ menuItemId: i.menuItemId, qty: i.qty })),
+          items: cart.items.filter((i) => !isComboId(i.menuItemId)).map((i) => ({ menuItemId: i.menuItemId, qty: i.qty })),
+          combos: cart.items.filter((i) => isComboId(i.menuItemId)).map((i) => ({ comboId: i.menuItemId.slice(COMBO_PREFIX.length), qty: i.qty })),
           address: { ...address, desk: address.desk.trim(), company: address.company.trim() },
           name: profile.name,
           phone: phone.replace(/\s/g, ''),
@@ -90,9 +91,14 @@ export default function CheckoutPage() {
 
   // Show the cafe's current prices and stock (the server prices the order the same way).
   const lines = cart.items.map((i) => {
+    if (isComboId(i.menuItemId)) {
+      const x = cafe?.combos?.find((cb) => `${COMBO_PREFIX}${cb.id}` === i.menuItemId);
+      return { ...i, price: x?.price ?? i.price, gone: !!cafe && (!x || !x.availableNow) };
+    }
     const m = cafe?.items.find((x) => x.id === i.menuItemId);
     return { ...i, price: m?.price ?? i.price, gone: !!cafe && (!m || !m.isAvailable) };
   });
+  const savings = lines.reduce((s, l) => s + (l.gone || !l.mrp ? 0 : Math.max(0, l.mrp - l.price) * l.qty), 0);
   const liveTotal = lines.reduce((s, l) => s + (l.gone ? 0 : l.price * l.qty), 0);
   const closed = !!cafe && !(cafe.isOpen && cafe.acceptingOrders);
   const goneNames = lines.filter((l) => l.gone).map((l) => l.name);
@@ -146,11 +152,20 @@ export default function CheckoutPage() {
             </div>
             {lines.map((i, n) => (
               <div key={i.menuItemId} className="row" style={{ marginTop: n ? 14 : 24, fontSize: 15, gap: 12, opacity: i.gone ? 0.5 : 1 }}>
-                <span><Veg veg={i.isVeg} />{i.name} × {i.qty}{i.gone && ' (out of stock)'}</span>
+                <span>
+                  <Veg veg={i.isVeg} />{i.detail && <span className="combo-tag">COMBO</span>}{i.name} × {i.qty}{i.gone && ' (not available now)'}
+                  {i.detail && <span style={{ display: 'block', fontSize: 13, color: 'var(--sub)' }}>{i.detail}</span>}
+                </span>
                 <b>{rupees(i.price * i.qty)}</b>
               </div>
             ))}
             <div className="divider" style={{ margin: '22px 0' }} />
+            {savings > 0 && (
+              <div className="row" style={{ fontSize: 15, marginBottom: 10, color: 'var(--green)', fontWeight: 700 }}>
+                <span>Combo savings</span>
+                <span>− {rupees(savings)}</span>
+              </div>
+            )}
             <div className="row" style={{ fontSize: 15 }}>
               <span style={{ color: 'var(--sub)' }}>Delivery</span>
               <span style={{ color: 'var(--green)', fontWeight: 600 }}>Free</span>

@@ -12,6 +12,7 @@ import { onBroadcast } from '@/lib/supabase';
 import type { Order } from '@/lib/types';
 import { useRequireLogin } from '@/lib/useRequireLogin';
 import { TrackingSteps } from './TrackingSteps';
+import { RateCard } from './RateCard';
 
 const POLL_MS = 15000;
 
@@ -116,16 +117,38 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
               <span className="meta">Order #{order.orderNo}</span>
             </div>
             {order.items.map((i) => (
-              <div key={i.id} className="row" style={{ marginTop: 10, fontSize: 15 }}>
-                <span>{i.name} × {i.qty}</span>
+              <div key={i.id} className="row" style={{ marginTop: 10, fontSize: 15, alignItems: 'flex-start' }}>
+                <span>
+                  {i.comboId && <span className="combo-tag">COMBO</span>}{i.name} × {i.qty}
+                  {i.detail && <span style={{ display: 'block', fontSize: 13, color: 'var(--sub)' }}>{i.detail}</span>}
+                </span>
                 <span>{rupees(i.price * i.qty)}</span>
               </div>
             ))}
+            {!!order.savings && <div style={{ marginTop: 10, fontSize: 14, fontWeight: 700, color: 'var(--green)' }}>You saved {rupees(order.savings)} with combos</div>}
             <div className="divider" style={{ margin: '14px 0' }} />
             <div className="meta" style={{ lineHeight: 1.5 }}>
               {[a.tower, floorLabel(a.floor), a.company].filter(Boolean).join(' · ')}<br />Desk {a.desk}
             </div>
           </div>
+          {order.status === 'delivered' && !order.rating && order.deliveredAt && Date.now() - new Date(order.deliveredAt).getTime() < 7 * 86400_000 && (
+            <RateCard order={order} onRated={(r) => setOrder({ ...order, rating: r })} />
+          )}
+          {order.rating && (
+            <div className="card" style={{ marginTop: 14, padding: '14px 18px', display: 'flex', justifyContent: 'space-between' }}>
+              <span className="meta">You rated this order</span>
+              <b style={{ color: '#F59E0B', letterSpacing: 2 }}>{'★'.repeat(order.rating.stars)}<span style={{ color: '#D6D3CD' }}>{'★'.repeat(5 - order.rating.stars)}</span></b>
+            </div>
+          )}
+          {live && (
+            <div className="card" style={{ marginTop: 14, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 220 }}>
+                <b>Want something else?</b>
+                <div className="meta">Order from another cafe too. It is a separate order and comes on its own.</div>
+              </div>
+              <Link href={`/${order.location.slug}`} className="btn sec">Order from another cafe</Link>
+            </div>
+          )}
           {error && <p className="err">{error}</p>}
           <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
             <a href={`tel:${order.cafe.phone.replace(/\s/g, '')}`} className="btn sec"><Icon name="phone" />Call cafe</a>

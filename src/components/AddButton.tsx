@@ -1,10 +1,9 @@
 'use client';
 
-import { useCart, type CartCafe } from '@/lib/cart';
-import type { MenuItem } from '@/lib/types';
+import { useCart, type Addable, type CartCafe } from '@/lib/cart';
 
 /** "Add" button that turns into the − n + stepper once the item is in the cart. */
-export function AddButton({ cafe, item, disabled }: { cafe: CartCafe; item: MenuItem; disabled?: boolean }) {
+export function AddButton({ cafe, item, disabled }: { cafe: CartCafe; item: Addable & { isAvailable: boolean }; disabled?: boolean }) {
   const { qtyOf, add, setQty } = useCart();
   const qty = qtyOf(item.id);
   if (!item.isAvailable) return <button className="add" disabled>Sold out</button>;

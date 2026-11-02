@@ -9,7 +9,7 @@ import { Veg } from './Food';
 
 /** "Your cart" card beside the menu. */
 export function CartPanel() {
-  const { cart, count, total, qtyOf, setQty } = useCart();
+  const { cart, count, total, savings, qtyOf, setQty } = useCart();
   const { profile } = useSession();
   return (
     <aside className="cart-panel" aria-label="Your cart">
@@ -24,7 +24,10 @@ export function CartPanel() {
           </div>
           {cart.items.map((i, n) => (
             <div key={i.menuItemId} className="row" style={{ marginTop: n ? 12 : 18, fontSize: 15, gap: 10 }}>
-              <span style={{ fontWeight: 600, flex: 1, minWidth: 0 }}><Veg veg={i.isVeg} />{i.name}</span>
+              <span style={{ fontWeight: 600, flex: 1, minWidth: 0 }}>
+                <Veg veg={i.isVeg} />{i.detail && <span className="combo-tag">COMBO</span>}{i.name}
+                {i.detail && <span style={{ display: 'block', fontSize: 12, color: 'var(--sub)', fontWeight: 500 }}>{i.detail}</span>}
+              </span>
               <span className="stepper" style={{ minWidth: 76, height: 32 }}>
                 <button aria-label={`Remove one ${i.name}`} onClick={() => setQty(i.menuItemId, qtyOf(i.menuItemId) - 1)} style={{ height: 32 }}>−</button>
                 {i.qty}
@@ -34,6 +37,12 @@ export function CartPanel() {
             </div>
           ))}
           <div className="divider" style={{ margin: '18px 0' }} />
+          {savings > 0 && (
+            <div className="row" style={{ fontSize: 14, fontWeight: 700, color: 'var(--green)', marginBottom: 8 }}>
+              <span>Combo savings</span>
+              <span>− {rupees(savings)}</span>
+            </div>
+          )}
           <div className="row" style={{ fontSize: 14, fontWeight: 600, color: '#4a4a4a' }}>
             <span>Delivery to desk</span>
             <span style={{ color: 'var(--green)', fontWeight: 800 }}>FREE</span>
