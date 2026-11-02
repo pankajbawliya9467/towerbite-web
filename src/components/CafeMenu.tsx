@@ -11,7 +11,6 @@ import { Food, Veg } from './Food';
 import { Icon } from './Icon';
 
 const POPULAR = '__popular';
-const COMBOS = '__combos';
 
 export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: LocationDetail }) {
   // Main categories are the tabs; sub-categories (Snacks › Burgers) are titled sections inside one.
@@ -26,15 +25,14 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
     .filter((m) => m.count);
   const hasPopular = cafe.items.some((i) => i.isPopular) && !mains.some((c) => c.name.toLowerCase() === 'popular');
   const popular = { id: POPULAR, name: 'Popular', sort: -1, subs: [], count: cafe.items.filter((i) => i.isPopular).length };
-  const comboTab = cafe.combos?.length ? [{ id: COMBOS, name: 'Combos', sort: -2, subs: [], count: cafe.combos.length }] : [];
-  const tabs = [...comboTab, ...(hasPopular ? [popular] : []), ...mains];
+  const tabs = [...(hasPopular ? [popular] : []), ...mains];
+  const combos = [...(cafe.combos ?? [])].sort((a, b) => Number(b.availableNow) - Number(a.availableNow));
+  const bestSave = Math.max(0, ...combos.filter((x) => x.availableNow).map((x) => x.mrp - x.price));
 
   const [active, setActive] = useState(tabs[0]?.id);
   const current = tabs.find((c) => c.id === active);
   const isPopular = !!current && (current.id === POPULAR || current.name.toLowerCase() === 'popular');
-  const sections = current?.id === COMBOS
-    ? []
-    : !current
+  const sections = !current
     ? [{ id: 'all', name: null as string | null, items: cafe.items }]
     : isPopular
       ? [{ id: current.id, name: null, items: cafe.items.filter((i) => i.isPopular || i.categoryId === current.id) }]
@@ -50,7 +48,7 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
 
   return (
     <main className="page">
-      <nav aria-label="Breadcrumb" style={{ fontSize: 14, fontWeight: 600, color: 'var(--sub)', marginBottom: 14 }}>
+      <nav aria-label="Breadcrumb" className="crumbs" style={{ fontSize: 14, fontWeight: 600, color: 'var(--sub)', marginBottom: 14 }}>
         <Link href={`/${location.slug}`}>{location.name}</Link> / <span style={{ color: 'var(--text)', fontWeight: 700 }}>{cafe.name}</span>
       </nav>
       <section className="cafe-banner">
@@ -59,18 +57,18 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
         </div>
         <div className="info">
           {canOrder ? (
-            <span className="chip ok" style={{ alignSelf: 'flex-start', height: 30, borderRadius: 15 }}><span className="dot" />Open now · Accepting orders</span>
+            <span className="chip ok cafe-status" style={{ alignSelf: 'flex-start', height: 30, borderRadius: 15 }}><span className="dot" />Open now · Accepting orders</span>
           ) : (
-            <span className="chip" style={{ alignSelf: 'flex-start', height: 30, borderRadius: 15, background: 'var(--redSoft)', color: 'var(--red)' }}>
+            <span className="chip cafe-status" style={{ alignSelf: 'flex-start', height: 30, borderRadius: 15, background: 'var(--redSoft)', color: 'var(--red)' }}>
               {cafe.isOpen ? 'Not taking orders right now' : 'Closed now'}
             </span>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            {cafe.logoUrl && <img src={cafe.logoUrl} alt="" style={{ width: 64, height: 64, borderRadius: 16, objectFit: 'cover', border: '1px solid var(--line)', flex: 'none' }} />}
+          <div className="cafe-title" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            {cafe.logoUrl && <img src={cafe.logoUrl} alt="" className="cafe-logo-lg" style={{ borderRadius: 16, objectFit: 'cover', border: '1px solid var(--line)', flex: 'none' }} />}
             <h1>{cafe.name}</h1>
           </div>
-          <div style={{ fontSize: 16, color: 'var(--sub)', fontWeight: 600 }}>{[cafe.cuisines, cafe.place].filter(Boolean).join(' · ')}</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 6 }}>
+          <div className="cafe-sub">{[cafe.cuisines, cafe.place].filter(Boolean).join(' · ')}</div>
+          <div className="cafe-chips">
             <span className="rating" style={{ height: 36, padding: '0 12px', borderRadius: 11, fontSize: 14 }}>
               ★ {cafe.rating.toFixed(1)}{cafe.ratingCount ? ` · ${cafe.ratingCount}+ ratings` : ''}
             </span>
@@ -85,6 +83,35 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
           </div>
         </div>
       </section>
+
+      {combos.length > 0 && (
+        <section className="combo-strip" aria-label="Combo deals">
+          <div className="combo-strip-head">
+            <b>Combo deals</b>
+            {bestSave > 0 && <span style={{ color: 'var(--green)', fontWeight: 800 }}>· save up to {rupees(bestSave)}</span>}
+          </div>
+          <div className="combo-row">
+            {combos.map((x) => (
+              <div key={x.id} className="combo-card" style={{ opacity: x.availableNow ? 1 : 0.6 }}>
+                <div className="combo-tile" style={{ background: cafe.coverColor }}>
+                  {x.imageUrl ? <img src={x.imageUrl} alt="" /> : <span aria-hidden>{x.items.slice(0, 2).map((i) => i.emoji).join('')}</span>}
+                  {x.mrp > x.price && <span className="combo-save">SAVE {rupees(x.mrp - x.price)}</span>}
+                </div>
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Veg veg={x.isVeg} /><b className="combo-name">{x.name}</b></div>
+                  <div className="combo-items">{x.items.map((i) => `${i.qty > 1 ? `${i.qty}× ` : ''}${i.name}`).join(' + ')}</div>
+                  <div className="row" style={{ marginTop: 'auto', paddingTop: 6 }}>
+                    <span><b>{rupees(x.price)}</b>{x.mrp > x.price && <s style={{ color: 'var(--sub)', marginLeft: 6, fontSize: 13 }}>{rupees(x.mrp)}</s>}</span>
+                    {x.availableNow
+                      ? <AddButton cafe={ref} item={{ ...comboCartItem(x), isAvailable: true }} disabled={!canOrder} />
+                      : <span style={{ fontSize: 12, fontWeight: 800, color: '#B45309' }}>{x.items.some((i) => !i.isAvailable) ? 'Sold out' : x.startTime && x.endTime ? `${comboTime(x.startTime)}–${comboTime(x.endTime)}` : 'Not now'}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="cafe-cols">
         {tabs.length > 1 && (
@@ -135,29 +162,7 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
           </div>
           </div>
           ))}
-          {current?.id === COMBOS && (
-            <div className="menu-grid">
-              {(cafe.combos ?? []).map((x) => (
-                <div key={x.id} className="dish combo" style={{ opacity: x.availableNow ? 1 : 0.6 }}>
-                  <div className="combo-art" style={{ background: cafe.coverColor }}>
-                    {x.imageUrl ? <img src={x.imageUrl} alt="" /> : <span aria-hidden>{x.items.slice(0, 3).map((i) => i.emoji).join(' ')}</span>}
-                    {x.mrp > x.price && <span className="combo-save">SAVE {rupees(x.mrp - x.price)}</span>}
-                    {x.startTime && x.endTime && <span className="combo-when">{comboTime(x.startTime)}–{comboTime(x.endTime)}</span>}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Veg veg={x.isVeg} /><b style={{ fontSize: 16 }}>{x.name}</b></div>
-                  <div style={{ fontSize: 13, color: 'var(--sub)', fontWeight: 600 }}>{x.items.map((i) => `${i.qty > 1 ? `${i.qty}× ` : ''}${i.name}`).join(' + ')}</div>
-                  {x.description && <div style={{ fontSize: 13, color: 'var(--sub)' }}>{x.description}</div>}
-                  <div className="row" style={{ marginTop: 'auto', paddingTop: 8 }}>
-                    <span><b style={{ fontSize: 16 }}>{rupees(x.price)}</b>{x.mrp > x.price && <s style={{ color: 'var(--sub)', marginLeft: 6, fontSize: 13 }}>{rupees(x.mrp)}</s>}</span>
-                    {x.availableNow
-                      ? <AddButton cafe={ref} item={{ ...comboCartItem(x), isAvailable: true }} disabled={!canOrder} />
-                      : <span className="chip" style={{ height: 30 }}>{x.items.some((i) => !i.isAvailable) ? 'Sold out' : 'Not now'}</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {current?.id !== COMBOS && sections.every((x) => !x.items.length) && <div className="card empty">Nothing here yet.</div>}
+          {sections.every((x) => !x.items.length) && <div className="card empty">Nothing here yet.</div>}
         </section>
 
         <CartPanel />

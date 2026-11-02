@@ -208,6 +208,9 @@ select.field {
 .cafe-banner .cover { flex: 1 1 280px; min-height: 200px; height: auto; font-size: 96px; }
 .cafe-banner .info { flex: 999 1 420px; padding: 28px 32px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
 .cafe-banner h1 { font-size: 40px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+.cafe-logo-lg { width: 64px; height: 64px; }
+.cafe-sub { font-size: 16px; color: var(--sub); font-weight: 600; }
+.cafe-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 .cafe-cols { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-top: 24px; }
 .cats { flex: 1 1 180px; display: flex; flex-direction: column; gap: 4px; position: sticky; top: calc(var(--top) + 16px); }
 .cats button { height: 44px; padding: 0 14px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 600; text-align: left; }
@@ -354,12 +357,39 @@ main.page, main[class*="page"], main[class*="board"] { animation: tb-in .2s ease
 
 /* Combos */
 .combo-tag { font-size: 10px; font-weight: 800; color: #fff; background: var(--accent); border-radius: 5px; padding: 1px 5px; margin-right: 6px; vertical-align: 2px; }
-.dish.combo { flex-direction: column; gap: 6px; }
-.combo-art { position: relative; height: 110px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden; }
-.combo-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.combo-save { position: absolute; left: 10px; top: 10px; background: var(--green); color: #fff; font-size: 11px; font-weight: 800; border-radius: 7px; padding: 3px 7px; }
-.combo-when { position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,.92); color: #B45309; font-size: 11px; font-weight: 800; border-radius: 7px; padding: 3px 7px; }
+.combo-strip { margin-top: 18px; background: #FFF7ED; border: 1px solid #F8D4BE; border-radius: 20px; padding: 16px 18px; }
+.combo-strip-head { display: flex; gap: 6px; align-items: baseline; font-size: 17px; }
+.combo-strip-head span { font-size: 13px; }
+.combo-row { display: flex; gap: 12px; overflow-x: auto; padding-top: 12px; scrollbar-width: thin; }
+.combo-card { flex: none; width: 320px; display: flex; gap: 12px; background: var(--surface); border-radius: 16px; padding: 12px; }
+.combo-tile { position: relative; width: 84px; height: 84px; flex: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; overflow: hidden; }
+.combo-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.combo-save { position: absolute; left: 0; right: 0; bottom: 0; background: var(--green); color: #fff; font-size: 10px; font-weight: 800; text-align: center; padding: 2px 0; }
+.combo-name { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combo-items { font-size: 13px; color: var(--sub); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 760px) { .combo-strip { padding: 12px 12px 12px 14px; border-radius: 16px; } .combo-strip-head { font-size: 15px; } }
 /* Rating card on the order page */
 .rate-stars { display: flex; gap: 6px; }
 .rate-stars button { font-size: 32px; line-height: 1; color: #D6D3CD; padding: 2px; }
 .rate-stars button.on { color: #F59E0B; }
+
+/* Phones: a compact cafe header (short cover, small logo, one row of chips), like the app */
+@media (max-width: 760px) {
+  .crumbs { display: none; }
+  .cafe-banner { border-radius: 18px; }
+  .cafe-banner .cover { flex-basis: 100%; min-height: 0; height: 110px; font-size: 56px; }
+  .cafe-banner .info { padding: 14px 16px 16px; gap: 6px; }
+  .cafe-banner .cafe-status { display: none; }
+  .cafe-banner h1 { font-size: 22px; letter-spacing: -0.4px; }
+  .cafe-title { gap: 10px !important; }
+  .cafe-logo-lg { width: 40px; height: 40px; border-radius: 10px !important; }
+  .cafe-sub { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cafe-chips { flex-wrap: nowrap; overflow-x: auto; gap: 6px; margin-top: 4px; scrollbar-width: none; }
+  .cafe-chips::-webkit-scrollbar { display: none; }
+  .cafe-chips > * { flex: none; height: 30px !important; padding: 0 10px !important; font-size: 12px !important; border-radius: 9px !important; }
+  .combo-strip { margin-top: 12px; }
+  .combo-card { width: 250px; padding: 10px; gap: 10px; }
+  .combo-tile { width: 64px; height: 64px; font-size: 22px; }
+  .combo-name { font-size: 13px; }
+  .combo-items { font-size: 11px; }
+}
