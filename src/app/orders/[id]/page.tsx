@@ -152,6 +152,9 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
           {error && <p className="err">{error}</p>}
           <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
             <a href={`tel:${order.cafe.phone.replace(/\s/g, '')}`} className="btn sec"><Icon name="phone" />Call cafe</a>
+            {order.status === 'out_for_delivery' && order.riderPhone && (
+              <a href={`tel:${order.riderPhone.replace(/\s/g, '')}`} className="btn sec"><Icon name="phone" />Call {order.riderName}</a>
+            )}
             {order.status === 'placed' && (
               <button className="btn sec" style={{ color: 'var(--red)' }} onClick={() => setConfirmCancel(true)}>Cancel order</button>
             )}

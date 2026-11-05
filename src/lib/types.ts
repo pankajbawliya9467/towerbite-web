@@ -75,6 +75,7 @@ export type Order = {
   customerPhone: string;
   address: Address;
   riderName: string | null;
+  riderPhone?: string | null;
   rejectReason: string | null;
   createdAt: string;
   acceptedAt: string | null;
