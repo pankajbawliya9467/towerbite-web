@@ -7,6 +7,7 @@ import { LogoMark, Wordmark } from '@/components/Logo';
 import { OtpInput } from '@/components/OtpInput';
 import { api } from '@/lib/api';
 import { sendOtp, verifyOtp } from '@/lib/auth';
+import { resetLive } from '@/lib/live';
 import { formatPhone } from '@/lib/format';
 import { getSavedLocation } from '@/lib/savedLocation';
 import { useSession } from '@/lib/session';
@@ -64,6 +65,7 @@ export function LoginCard() {
   const verify = () =>
     run(async () => {
       await verifyOtp(phone, code);
+      resetLive(); // live updates now with this login
       const p = await refresh();
       if (p?.name) done();
       else setStep('name');

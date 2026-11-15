@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { api, ApiError } from './api';
 import { getToken, logout as authLogout } from './auth';
+import { resetLive } from './live';
 import type { Profile } from './types';
 
 type Session = {
@@ -26,7 +27,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       try {
         p = await api<Profile>('/v1/me');
       } catch (e) {
-        if (e instanceof ApiError && e.status === 401) await authLogout();
+        if (e instanceof ApiError && e.status === 401) (await authLogout(), resetLive());
       }
     }
     setProfile(p);
@@ -40,6 +41,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await authLogout();
+    resetLive();
     setProfile(null);
   }, []);
 

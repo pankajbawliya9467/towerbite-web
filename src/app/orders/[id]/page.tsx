@@ -8,7 +8,7 @@ import { TopBar } from '@/components/TopBar';
 import { api } from '@/lib/api';
 import { floorLabel, rupees, time } from '@/lib/format';
 import { isActive } from '@/lib/orderStatus';
-import { onBroadcast } from '@/lib/supabase';
+import { onLive } from '@/lib/live';
 import type { Order } from '@/lib/types';
 import { useRequireLogin } from '@/lib/useRequireLogin';
 import { TrackingSteps } from './TrackingSteps';
@@ -54,7 +54,7 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
   }, [profile, load]);
   useEffect(() => {
     if (!profile || finished) return;
-    const off = onBroadcast(`order:${id}`, 'status', load);
+    const off = onLive(`order:${id}`, 'status', load);
     const t = setInterval(load, POLL_MS);
     return () => {
       off();
