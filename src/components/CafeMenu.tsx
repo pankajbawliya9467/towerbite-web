@@ -11,6 +11,9 @@ import { Food, Veg } from './Food';
 import { Icon } from './Icon';
 
 const POPULAR = '__popular';
+const ALL = '__all';
+
+type Section = { id: string; heading?: string; count?: number; name: string | null; items: CafeWithMenu['items']; sub?: boolean };
 
 export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: LocationDetail }) {
   // Main categories are the tabs; sub-categories (Snacks › Burgers) are titled sections inside one.
@@ -25,22 +28,30 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
     .filter((m) => m.count);
   const hasPopular = cafe.items.some((i) => i.isPopular) && !mains.some((c) => c.name.toLowerCase() === 'popular');
   const popular = { id: POPULAR, name: 'Popular', sort: -1, subs: [], count: cafe.items.filter((i) => i.isPopular).length };
-  const tabs = [...(hasPopular ? [popular] : []), ...mains];
+  const all = { id: ALL, name: 'All', sort: -2, subs: [], count: cafe.items.length };
+  const tabs = [...(mains.length > 1 ? [all] : []), ...(hasPopular ? [popular] : []), ...mains];
   const combos = [...(cafe.combos ?? [])].sort((a, b) => Number(b.availableNow) - Number(a.availableNow));
   const bestSave = Math.max(0, ...combos.filter((x) => x.availableNow).map((x) => x.mrp - x.price));
 
-  const [active, setActive] = useState(tabs[0]?.id);
+  const [active, setActiveTab] = useState(tabs[0]?.id);
+  const [subOn, setSubOn] = useState('');
+  const setActive = (id: string) => (setActiveTab(id), setSubOn(''));
   const current = tabs.find((c) => c.id === active);
   const isPopular = !!current && (current.id === POPULAR || current.name.toLowerCase() === 'popular');
-  const sections = !current
-    ? [{ id: 'all', name: null as string | null, items: cafe.items }]
-    : isPopular
-      ? [{ id: current.id, name: null, items: cafe.items.filter((i) => i.isPopular || i.categoryId === current.id) }]
-      : [
-          { id: current.id, name: null as string | null, items: cafe.items.filter((i) => i.categoryId === current.id) },
-          ...current.subs.map((s) => ({ id: s.id, name: s.name as string | null, items: cafe.items.filter((i) => i.categoryId === s.id) })),
-        ].filter((x) => x.items.length);
-  const subs = sections.filter((x) => x.name);
+  // A category: its own items in one card, then one titled card per sub-category.
+  const blocks = (m: (typeof mains)[number]): Section[] =>
+    [
+      { id: m.id, name: null, items: cafe.items.filter((i) => i.categoryId === m.id) } as Section,
+      ...m.subs.map((s) => ({ id: s.id, name: s.name, sub: true, items: cafe.items.filter((i) => i.categoryId === s.id) })),
+    ].filter((x) => x.items.length);
+  const sections: Section[] = !current
+    ? [{ id: 'all', name: null, items: cafe.items }]
+    : current.id === ALL
+      ? mains.flatMap((m) => [{ id: `h${m.id}`, heading: m.name, count: m.count, name: null, items: [] }, ...blocks(m)])
+      : isPopular
+        ? [{ id: current.id, name: null, items: cafe.items.filter((i) => i.isPopular || i.categoryId === current.id) }]
+        : blocks(current as (typeof mains)[number]);
+  const subs = current?.id === ALL ? [] : sections.filter((x) => x.sub);
   const jump = (id: string) => document.getElementById(`sec-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   const canOrder = cafe.isOpen && cafe.acceptingOrders;
   const ref = { id: cafe.id, slug: cafe.slug, name: cafe.name, locationSlug: location.slug };
@@ -124,7 +135,7 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
                 </button>
                 {c.id === active && subs.map((s) => (
                   <button key={s.id} className="sub" onClick={() => jump(s.id)}>
-                    ↳ {s.name}
+                    {s.name}
                     <small>{s.items.length}</small>
                   </button>
                 ))}
@@ -134,10 +145,21 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
         )}
 
         <section className="menu-col">
-          <h2 className="h2" style={{ fontSize: 22, marginBottom: 14 }}>{current?.name ?? 'Menu'}</h2>
-          {sections.map((sec) => (
-          <div key={sec.id} id={`sec-${sec.id}`} className="menu-sec">
-          {sec.name && <h3 className="menu-sub">{sec.name} <small>{sec.items.length}</small></h3>}
+          {subs.length > 0 && (
+            <nav className="subtabs" aria-label={`${current?.name} sections`}>
+              <button className={!subOn ? 'on' : undefined} onClick={() => (setSubOn(''), jump(sections[0]?.id ?? ''))}>All <small>{current?.count}</small></button>
+              {subs.map((s) => (
+                <button key={s.id} className={subOn === s.id ? 'on' : undefined} onClick={() => (setSubOn(s.id), jump(s.id))}>{s.name} <small>{s.items.length}</small></button>
+              ))}
+            </nav>
+          )}
+          {current?.id !== ALL && <h2 className="h2" style={{ fontSize: 22, marginBottom: 14 }}>{current?.name ?? 'Menu'}</h2>}
+          {sections.map((sec) =>
+            sec.heading ? (
+              <h2 key={sec.id} className="menu-cat">{sec.heading} · {sec.count}</h2>
+            ) : (
+          <div key={sec.id} id={`sec-${sec.id}`} className="menu-sec menu-card">
+          {sec.name && <h3 className="menu-card-head"><span>{sec.name}</span><small>{sec.items.length} {sec.items.length === 1 ? 'item' : 'items'}</small></h3>}
           <div className="menu-grid">
             {sec.items.map((item) => (
               <div key={item.id} className="dish" style={{ opacity: item.isAvailable ? 1 : 0.6 }}>
@@ -161,8 +183,9 @@ export function CafeMenu({ cafe, location }: { cafe: CafeWithMenu; location: Loc
             ))}
           </div>
           </div>
-          ))}
-          {sections.every((x) => !x.items.length) && <div className="card empty">Nothing here yet.</div>}
+            ),
+          )}
+          {sections.every((x) => !x.items.length && !x.heading) && <div className="card empty">Nothing here yet.</div>}
         </section>
 
         <CartPanel />
